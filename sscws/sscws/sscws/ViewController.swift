@@ -10,7 +10,7 @@ import WebKit
 
 class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate {
     
-    var webView: WKWebView!
+    @IBOutlet weak var webView: WKWebView!
     var activityIndicator: UIActivityIndicatorView = UIActivityIndicatorView()
     
     
@@ -19,22 +19,34 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate {
         webView = WKWebView(frame: self.view.frame)
         webView.uiDelegate = self
         webView.navigationDelegate = self
-        
+    
         self.view = self.webView!
     }
     
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.webView.uiDelegate = self
         
         let myBlog = "http://seoulshimin.or.kr/sscws/index.php?device=mobile"
         let url = URL(string: myBlog)
+        
         let request = URLRequest(url: url!)
+        webView.customUserAgent = "/SSCWS/1.0/IOSAPP"
+       
         webView.load(request)
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if navigationAction.targetFrame == nil {
+            //webView.load(navigationAction.request)
+            UIApplication.shared.open(navigationAction.request.url!, options: [:])
+        }
+        return nil
+    }
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
     }
     
     func webViewDidFinishLoad(_ webView: UIWebView) {
@@ -42,6 +54,7 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate {
         webView.frame.size = webView.sizeThatFits(.zero)
     }
     
+
     @available(iOS 8.0, *)
     public func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Swift.Void){
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
